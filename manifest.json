@@ -1,0 +1,19 @@
+{
+  "name": "Yout it",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "J'aime bien l'idée, mais pas le courage de réfléchir :)
+  https://www.youtube.com/watch?v=aDFutTmsjjM
+  https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/",
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_icon": "logo.png"
+  },
+  "icons": {
+  	"36": "logo.png"
+  },
+  "permissions": ["activeTab", "<all_urls>"]
+}
