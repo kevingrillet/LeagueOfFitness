@@ -30,7 +30,7 @@ var
   s    = [  0,  0,  0, 12,  16,  0,  0,   0,   0,  0,   5,   0,   0,   0,   0];
 
 // Récupère les données dans le storage ou conserve les valeurs par défaut.
-var initSettings = function () {
+function initSettings () {
   function setSettings(data) {
     if (ver == data.ver) {
       pu = data.pu;
@@ -49,17 +49,17 @@ var initSettings = function () {
     }
   }
 
-  chrome.storage.local.get({ 'ver': 1.0, 'pu': pu, 'su': su, 's': s }, function (data) { setSettings(data) });
+  browser.storage.local.get({ 'ver': 1.0, 'pu': pu, 'su': su, 's': s }).then(setSettings);;
 }
 
 // Créé le tableau settings & charge les données.
-var loadSettings = function () {
+function loadSettings () {
   var st = document.querySelector("#settingsTab");
   while (st.firstChild) {
     st.removeChild(st.firstChild);
   }
   for (let index = 0; index < pu.length; index++) {
-    var ln = st.appendChild(document.createElement('tr'));
+    var ln               = st.appendChild(document.createElement('tr'));
     if (index == KILL) {
       var th       = ln.appendChild(document.createElement('th'));
       th.scope     = "row";
@@ -97,7 +97,7 @@ var loadSettings = function () {
 }
 
 // Vérifie que la sauvegarde est possible
-var trySave = function () {
+function trySave () {
   document.querySelector("#ok").style.display = "none";
   document.querySelector("#ko").style.display = "none";
 
@@ -115,7 +115,7 @@ var trySave = function () {
       case VICTORY:
       case TURRET:
       case ETURRET:
-        var th = ln.firstElementChild.nextElementSibling;
+        var th = ln.firstElementChild.nextElementSibling;        
         break;
 
       default:
@@ -146,14 +146,13 @@ var trySave = function () {
 }
 
 // Sauvegarde
-var saveSettings = function () {
-  chrome.storage.local.set({ 'ver': ver, 'pu': pu, 'su': su, 's': s }, function () {
-    load();
-  });
+function saveSettings () {
+  browser.storage.local.set({ver, pu, su, s});
+  load();
 }
 
 // Parse le dom envoyé en paramètre et fait le calcul.
-var fitness = function (doc) {
+function fitness (doc) {
   var
     fpu = fsu = fs = 0,
     //       KI, DE, AS, VI, DEF, TU, IN, BA, DR, RI, ETU, EIN, EBA, EDR, ERI
@@ -217,40 +216,45 @@ var fitness = function (doc) {
 };
 
 // En cas de problème fait apparaitre le message d'erreur.
-var err = function () {
+function err () {
   document.querySelector("#pb").style.display = "block";
   document.querySelector("#fit").style.display = "none";
 }
 
 // Récupère le dom et tente de faire l'update
-var upd = function (doc){
+function upd (doc){
   try {
     var data = fitness(doc);
-    document.querySelector("#pu").innerHTML = data[0];
+    document.querySelector("#pu").innerHTML = data;
     document.querySelector("#su").innerHTML = data[1];
-    document.querySelector("#s").innerHTML = data[2];
+    document.querySelector("#s").innerHTML  = data[2];
   } catch (error) {
     err();
   }
 }
 
 // Traitement principal. Regarde l'onglet, si l'url est bonne lance le traitement, sinon message d'erreur
-var load = function () {
+function load() {
   function run(tabs) {
+    function goUpd(response) {
+      var dom;
+      dom = new DOMParser().parseFromString(response, "text/html");
+      upd(dom);
+    }
+
     if (tabs[0].url == undefined) {
       err();
     } else if (tabs[0].url.match(/^.*matchhistory\..*\.leagueoflegends.com\/.*/)) {
       initSettings();
-      chrome.tabs.sendMessage(tabs[0].id, { text: "report_back" }, function (response) {
-        loadSettings();
-        upd(new DOMParser().parseFromString(response, "text/html"));
-      });
+      loadSettings();
+      var msg = browser.tabs.sendMessage(tabs[0].id, { text: "report_back" });
+      msg.then(response => goUpd(response));
     } else {
       err();
     }
   }
 
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) { run(tabs) });
+  browser.tabs.query({ active: true, currentWindow: true}).then(run);
 }
 
 // Listener - Tous les boutons de la popup.
@@ -259,14 +263,12 @@ document.addEventListener('DOMContentLoaded', function () {
     trySave();
   });
   document.querySelector('#refresh').addEventListener('click', function () {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.reload(tabs[0].id);
-    });
+    browser.tabs.query({ active: true, currentWindow: true }).then(tabs => browser.tabs.reload(tabs.id));
   });
   document.querySelector('#reset').addEventListener('click', function () {
     document.querySelector("#ok").style.display = "none";
     document.querySelector("#ko").style.display = "none";
-    chrome.storage.local.clear();
+    browser.storage.local.clear();
     pu   = [0.5,  1,  0,  2,   4,  0,  0,   0,   0,  0,   0,   0,   0, 1.5,   5],
     su   = [  0,  0,  1,  6,  10,  0,  0,   0,   0,  0,   0,   2, 4.5,   0,   0],
     s    = [  0,  0,  0, 12,  16,  0,  0,   0,   0,  0,   5,   0,   0,   0,   0];
