@@ -1,19 +1,35 @@
 {
-  "name": "Yout it",
+  "name": "LeagueOfFitness",
   "version": "1.0",
   "manifest_version": 2,
-  "description": "J'aime bien l'idée, mais pas le courage de réfléchir :)
-  https://www.youtube.com/watch?v=aDFutTmsjjM
-  https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/",
+  "description": "https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/",
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "js/background.js"
+    ],
     "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/content.js"
+      ]
+    }
+  ],
   "browser_action": {
-    "default_icon": "logo.png"
+    "default_icon": "img/logo.png",
+    "default_popup": "popup.html",
+    "default_title": "League Of Fitness"
   },
   "icons": {
-  	"36": "logo.png"
+    "48": "img/logo.png"
   },
-  "permissions": ["activeTab", "<all_urls>"]
+  "permissions": [
+    "tabs",
+    "storage",
+    "<all_urls>"
+  ]
 }
