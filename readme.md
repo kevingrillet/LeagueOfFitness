@@ -24,6 +24,6 @@ Suivant les navigateurs l'installation divers quelque peu:
 
 ## Note de version
 - v2.0 - : Cross Browser Extension (Webextension-polyfill) + mise au propre du code, quand celle-ci sera sorti, les deux anciennes versions ne seront pas maintenu (chrome-extension & webextensions).
-- v1.2 - : Ajout d'une version Firefox (webextensions).
+- v1.2 - 31-01-2019: Ajout d'une version Firefox (webextensions).
 - v1.1 - 30-01-2019: Ajout du calcul en fonctionnement des résultats de l'équipe adverse et passage à querySelector Chrome.
 - v1.0 - 29-01-2019: Ajout des fonctionnalités de base, calcul et enregistrement des paramètres pour Chrome.
