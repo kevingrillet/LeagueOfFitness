@@ -23,14 +23,14 @@ const
 
 var
   fpu = fsu = fs = 0,
-  ver  = 2.0,
+  ver  = 1.2,
   //       KI, DE, AS, VI, DEF, TU, IN,  BA,  DR, RI, ETU, EIN, EBA, EDR, ERI
   pu   = [0.5,  1,  0,  2,   4,  0,  0,   0,   0,  0,   0,   0,   0, 1.5,   5],
   su   = [  0,  0,  1,  6,  10,  0,  0,   0,   0,  0,   0,   2, 4.5,   0,   0],
   s    = [  0,  0,  0, 12,  16,  0,  0,   0,   0,  0,   5,   0,   0,   0,   0];
 
 // Récupère les données dans le storage ou conserve les valeurs par défaut.
-var initSettings = function () {
+function initSettings() {
   function setSettings(data) {
     if (ver == data.ver) {
       pu = data.pu;
@@ -53,7 +53,7 @@ var initSettings = function () {
 }
 
 // Créé le tableau settings & charge les données.
-var loadSettings = function () {
+function loadSettings() {
   var st = document.querySelector("#settingsTab");
   while (st.firstChild) {
     st.removeChild(st.firstChild);
@@ -97,7 +97,7 @@ var loadSettings = function () {
 }
 
 // Vérifie que la sauvegarde est possible
-var trySave = function () {
+function trySave() {
   document.querySelector("#ok").style.display = "none";
   document.querySelector("#ko").style.display = "none";
 
@@ -146,14 +146,14 @@ var trySave = function () {
 }
 
 // Sauvegarde
-var saveSettings = function () {
+function saveSettings() {
   chrome.storage.local.set({ 'ver': ver, 'pu': pu, 'su': su, 's': s }, function () {
     load();
   });
 }
 
 // Parse le dom envoyé en paramètre et fait le calcul.
-var fitness = function (doc) {
+function fitness(doc) {
   var
     fpu = fsu = fs = 0,
     //       KI, DE, AS, VI, DEF, TU, IN, BA, DR, RI, ETU, EIN, EBA, EDR, ERI
@@ -210,38 +210,39 @@ var fitness = function (doc) {
   for (let index = 0; index < data.length; index++) {
     fpu += pu[index] * data[index];
     fsu += su[index] * data[index];
-    fs += s[index] * data[index];
+    fs  += s[index] * data[index];
   }
 
   return [fpu, fsu, fs];
 };
 
 // En cas de problème fait apparaitre le message d'erreur.
-var err = function () {
+function err() {
   document.querySelector("#pb").style.display = "block";
   document.querySelector("#fit").style.display = "none";
 }
 
 // Récupère le dom et tente de faire l'update
-var upd = function (doc){
+function upd(doc){
   try {
     var data = fitness(doc);
     document.querySelector("#pu").innerHTML = data[0];
     document.querySelector("#su").innerHTML = data[1];
-    document.querySelector("#s").innerHTML = data[2];
+    document.querySelector("#s").innerHTML  = data[2];
   } catch (error) {
     err();
   }
 }
 
 // Traitement principal. Regarde l'onglet, si l'url est bonne lance le traitement, sinon message d'erreur
-var load = function () {
+function load() {
   function run(tabs) {
     if (tabs[0].url == undefined) {
       err();
     } else if (tabs[0].url.match(/^.*matchhistory\..*\.leagueoflegends.com\/.*/)) {
       initSettings();
       chrome.tabs.sendMessage(tabs[0].id, { text: "report_back" }, function (response) {
+        // Le traitement s'effectue après que chrome.storage.local.get soit terminé
         loadSettings();
         upd(new DOMParser().parseFromString(response, "text/html"));
       });

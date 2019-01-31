@@ -23,19 +23,19 @@ const
 
 var
   fpu = fsu = fs = 0,
-  ver  = 2.0,
+  ver  = 1.2,
   //       KI, DE, AS, VI, DEF, TU, IN,  BA,  DR, RI, ETU, EIN, EBA, EDR, ERI
   pu   = [0.5,  1,  0,  2,   4,  0,  0,   0,   0,  0,   0,   0,   0, 1.5,   5],
   su   = [  0,  0,  1,  6,  10,  0,  0,   0,   0,  0,   0,   2, 4.5,   0,   0],
   s    = [  0,  0,  0, 12,  16,  0,  0,   0,   0,  0,   5,   0,   0,   0,   0];
 
 // Récupère les données dans le storage ou conserve les valeurs par défaut.
-function initSettings () {
+function initSettings() {
   function setSettings(data) {
     if (ver == data.ver) {
       pu = data.pu;
       su = data.su;
-      s  = data.s;
+      s = data.s;
     } else if (data.ver == 1.0) {
       for (let index = 0; index < data.pu.length; index++) {
         var itmp = index;
@@ -44,16 +44,17 @@ function initSettings () {
         }
         pu[itmp] = data.pu[index];
         su[itmp] = data.su[index];
-        s[itmp]  = data.s[index];
+        s[itmp] = data.s[index];
       }
     }
+    return Promise.resolve();
   }
 
-  browser.storage.local.get({ 'ver': 1.0, 'pu': pu, 'su': su, 's': s }).then(setSettings);;
+  return browser.storage.local.get({ 'ver': 1.0, 'pu': pu, 'su': su, 's': s }).then(setSettings);
 }
 
 // Créé le tableau settings & charge les données.
-function loadSettings () {
+function loadSettings() {
   var st = document.querySelector("#settingsTab");
   while (st.firstChild) {
     st.removeChild(st.firstChild);
@@ -97,7 +98,7 @@ function loadSettings () {
 }
 
 // Vérifie que la sauvegarde est possible
-function trySave () {
+function trySave() {
   document.querySelector("#ok").style.display = "none";
   document.querySelector("#ko").style.display = "none";
 
@@ -115,7 +116,7 @@ function trySave () {
       case VICTORY:
       case TURRET:
       case ETURRET:
-        var th = ln.firstElementChild.nextElementSibling;        
+        var th = ln.firstElementChild.nextElementSibling;
         break;
 
       default:
@@ -146,13 +147,13 @@ function trySave () {
 }
 
 // Sauvegarde
-function saveSettings () {
-  browser.storage.local.set({ver, pu, su, s});
+function saveSettings() {
+  browser.storage.local.set({ ver, pu, su, s });
   load();
 }
 
 // Parse le dom envoyé en paramètre et fait le calcul.
-function fitness (doc) {
+function fitness(doc) {
   var
     fpu = fsu = fs = 0,
     //       KI, DE, AS, VI, DEF, TU, IN, BA, DR, RI, ETU, EIN, EBA, EDR, ERI
@@ -216,16 +217,16 @@ function fitness (doc) {
 };
 
 // En cas de problème fait apparaitre le message d'erreur.
-function err () {
+function err() {
   document.querySelector("#pb").style.display = "block";
   document.querySelector("#fit").style.display = "none";
 }
 
 // Récupère le dom et tente de faire l'update
-function upd (doc){
+function upd(doc){
   try {
     var data = fitness(doc);
-    document.querySelector("#pu").innerHTML = data;
+    document.querySelector("#pu").innerHTML = data[0];
     document.querySelector("#su").innerHTML = data[1];
     document.querySelector("#s").innerHTML  = data[2];
   } catch (error) {
@@ -236,25 +237,17 @@ function upd (doc){
 // Traitement principal. Regarde l'onglet, si l'url est bonne lance le traitement, sinon message d'erreur
 function load() {
   function run(tabs) {
-    function goUpd(response) {
-      var dom;
-      dom = new DOMParser().parseFromString(response, "text/html");
-      upd(dom);
-    }
-
     if (tabs[0].url == undefined) {
       err();
     } else if (tabs[0].url.match(/^.*matchhistory\..*\.leagueoflegends.com\/.*/)) {
-      initSettings();
-      loadSettings();
-      var msg = browser.tabs.sendMessage(tabs[0].id, { text: "report_back" });
-      msg.then(response => goUpd(response));
+      initSettings().then(loadSettings);
+      browser.tabs.sendMessage(tabs[0].id, { text: "report_back" }).then(response => upd(new DOMParser().parseFromString(response, "text/html")));
     } else {
       err();
     }
   }
 
-  browser.tabs.query({ active: true, currentWindow: true}).then(run);
+  browser.tabs.query({ active: true, currentWindow: true }).then(run);
 }
 
 // Listener - Tous les boutons de la popup.

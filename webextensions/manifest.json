@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "LeagueOfFitness",
-  "version": "3.0",
+  "version": "1.2",
   "description": "https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/",
   "homepage_url": "https://github.com/kevingrillet/LeagueOfFitness",
   "background": {
@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*matchhistory.*.leagueoflegends.com/*"
+        "*://*.leagueoflegends.com/*"
       ],
       "js": [
         "js/content.js"
