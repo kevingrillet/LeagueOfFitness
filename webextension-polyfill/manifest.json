@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "name": "LeagueOfFitness",
+  "version": "2.0",
+  "description": "https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/",
+  "homepage_url": "https://github.com/kevingrillet/LeagueOfFitness",
+  "background": {
+    "scripts": [
+      "js/browser-polyfill.min.js",
+      "js/background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.leagueoflegends.com/*"
+      ],
+      "js": [
+        "js/browser-polyfill.min.js",
+        "js/content.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_icon": "img/logo.png",
+    "default_popup": "popup.html",
+    "default_title": "League Of Fitness"
+  },
+  "icons": {
+    "48": "img/logo.png"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ]
+}
