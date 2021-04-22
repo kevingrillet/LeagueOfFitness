@@ -1,5 +1,5 @@
 # League Of Fitness
-![NOT WORKING](https://img.shields.io/badge/Status-BREAK-red?logo=Github)
+![NOT WORKING](https://img.shields.io/badge/Status-BREAK-red?logo=Github) use [this](https://github.com/kevingrillet/Userscripts#League-of-Legends) instead.
 
 Il s'agit d'une extension basée sur une [vieille idée](https://www.reddit.com/r/leagueoflegends/comments/1li068/league_of_fitness/).
 
